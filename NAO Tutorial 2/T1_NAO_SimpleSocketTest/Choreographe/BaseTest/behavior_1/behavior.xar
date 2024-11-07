@@ -24,7 +24,7 @@ import time
 
 # Parameters for the server
 
-host = '192.168.1.140' # = 'FIND YOUR IP ADDRESS' # See above notes
+host = '127.0.0.1' # = 'FIND YOUR IP ADDRESS' # See above notes
 port = 8888 # No need to change
 
 client_socket = None

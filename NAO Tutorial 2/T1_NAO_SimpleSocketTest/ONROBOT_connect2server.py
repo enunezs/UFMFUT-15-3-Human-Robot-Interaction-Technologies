@@ -24,7 +24,8 @@ import time
 
 # Parameters for the server
 
-host = '169.254.13.207'  # = 'FIND YOUR IP ADDRESS' # See above notes
+host = '169.254.13.207'     # = 'FIND YOUR IP ADDRESS' # See above notes
+# host = '172.0.0.1'          # Localhost, uncomment if running in simulation
 port = 8888 # No need to change
 
 client_socket = None

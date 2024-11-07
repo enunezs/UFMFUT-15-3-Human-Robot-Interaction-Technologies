@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<package version="0.0.0" uuid="basetest-83ac07">
+<package uuid="basetest-83ac07" version="0.0.0">
  <names>
   <name lang="en_US">Untitled</name>
  </names>
@@ -13,9 +13,6 @@
   <behaviorContent path="behavior_1">
    <userRequestable/>
    <nature>interactive</nature>
-   <triggerSentences/>
-   <loadingResponses/>
-   <autonomous/>
    <permissions/>
   </behaviorContent>
  </contents>
