@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<package uuid="basetest-83ac07" version="0.0.0">
+<package version="0.0.0" installOnlyAtStartup="false" uuid="basetest-83ac07">
  <names>
   <name lang="en_US">Untitled</name>
  </names>
