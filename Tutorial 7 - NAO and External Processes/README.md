@@ -29,7 +29,7 @@ To install Python on Windows:
 On Linux, most distros will have it installed
 
 2. Install ***OpenCV***
-   Type `pip install opencv-python` on terminal
+   Type `pip install opencv-contrib-python==4.11.0.86` on terminal
 
 3. Install Media Pipe
-   Type `pip install mediapipe` on terminal
+   Type `pip install mediapipe==0.10.21` on terminal
