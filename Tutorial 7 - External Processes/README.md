@@ -6,11 +6,50 @@ You will learn how to send simple commands between the NAO and computer using so
 
 The robot code is in the file []() `ONROBOT_connect2server.py` (which you should put in a python box in Choreographe) and the server code is in the file `simple_socket_server.py`.
 
+
+```Mermaid
+sequenceDiagram
+    participant N as NAO (Client)
+    participant P as PC (Server)
+    Note over P: Bind and listen
+    N->>P: Connect
+    Note over P: Accept connection
+    N->>P: Send "1"
+    Note over P: Process request
+    P->>N: Send "2"
+    Note over N,P: Close connection
+    Note over P: Wait for next client
+```
+
+
 ## Part 2: Advanced communication with the robot
 
 You will learn how to send more complex commands. The server will now perform "complicated" calculations and send back a response to the robot.
 
 The robot code is in the file `ONROBOT_connect2server.py` (which you should put in a python box in Choreographe) and the server code is in the file `mediapipe_socket_server.py`.
+
+
+```Mermaid
+sequenceDiagram
+    participant N as NAO (Client)
+    participant P as PC (Server)
+    participant U as User
+    participant G as Google Speech Recognition
+
+    Note over P: Bind and listen
+    N->>P: Connect
+    N->>P: Send "1"
+    Note over P: Start speech recognition
+    P->>U: Wait for speech
+    U->>P: Spoken phrase
+    P->>G: Recorded audio
+    G->>P: Recognised text
+    Note over P: Check for target word
+    P->>N: Send "1" or "0"
+    Note over N,P: Close connection
+    Note over N: Output result in Choregraphe
+    Note over P: Wait for next client
+```
 
 ---
 
@@ -29,7 +68,7 @@ To install Python on Windows:
 On Linux, most distros will have it installed
 
 2. Install ***OpenCV***
-   Type `pip install opencv-contrib-python==4.11.0.86` on terminal
+   Type `pip install opencv-python` on terminal
 
 3. Install Media Pipe
-   Type `pip install mediapipe==0.10.21` on terminal
+   Type `pip install mediapipe` on terminal
