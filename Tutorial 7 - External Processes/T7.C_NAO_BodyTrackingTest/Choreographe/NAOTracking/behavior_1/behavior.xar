@@ -14,97 +14,140 @@
     <Timeline enable="0">
       <BehaviorLayer name="behavior_layer1">
         <BehaviorKeyframe name="keyframe1" index="1">
-          <Diagram>
-            <Box name="Test" id="1" localization="8" tooltip="" x="541" y="99">
+          <Diagram scale="50">
+            <Box name="Test" id="1" localization="8" tooltip="" x="368" y="115">
               <bitmap>media/images/box/box-python-script.png</bitmap>
               <script language="4">
                 <content>
                   <![CDATA[#----------------------------------------------------------------------------------#
-# Simple NAO Client
-# By Emanuel Nunez and Edward White (Corrected)
+# By Emanuel Nunez and Edward White, updated by Paul Bremner
+# Version 1.2s
+#----------------------------------------------------------------------------------#
+# Original from https://github.com/PaulBremner/Choregraphe/tree/master
+#----------------------------------------------------------------------------------#
+# Notes
+# - Set the host IP address to the IP address of the computer running the server.
+# - This address may change between sessions.
+# - Use ipconfig (Windows) or ip addr / ifconfig (Linux) to find the IP address.
+# - The robot must be able to reach the computer over the network.
+# - The port number must match the server.
+# - The client maintains a continuous connection with the server.
+#----------------------------------------------------------------------------------#
+# Usage
+# 1. Paste this code into a Python box in Choregraphe.
+# 2. Change the output type of onAnswer to String.
+# 3. Run the MediaPipe server code on the computer.
+# 4. Run the behaviour in Choregraphe.
 #----------------------------------------------------------------------------------#
 
+# Import the necessary modules (yes, even inside of Choregraphe)
 import socket
-import random
-import time
 
-host = '127.0.0.1'
-port = 8888
+# Parameters for the server
+# host = '169.254.55.109'  # Replace with your computer's IP address
+host = '127.0.0.1'        # Localhost, if the simulated robot and server share the same host
+port = 8889              # No need to change
 
 
 class MyClass(GeneratedClass):
 
     def __init__(self):
         GeneratedClass.__init__(self)
-        self.client_socket = None  # IMPORTANT: use self.
+        self.client_socket = None
+        self.running = False
 
     def onLoad(self):
+        # Called when "play" is pressed
         pass
 
     def onInput_onStart(self):
 
-        ### 1. Create the socket
-        self.logger.info("Connecting to socket...")
+        self.running = True
 
         try:
+
+            ### 1. Set up the client socket
+
+            # Create a TCP/IP socket
+            self.logger.info("Creating socket...")
             self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.client_socket.settimeout(3.0)  # avoid blocking forever
+
+            ### 2. Connect to the server
 
             self.logger.info("Connecting to server...")
             self.client_socket.connect((host, port))
+            self.logger.info("Connected to server.")
 
-        except Exception as e:
-            self.logger.error("Could not connect to server: %s", str(e))
-            self.onStopped("Connection failed")
-            return
+            ### 3. Continuously receive messages from the server
 
-        ### 2. Send a test message
-        important_message = random.randint(2, 6)
-        self.logger.info("Sending test val %s", str(important_message))
+            while self.running:
 
-        try:
-            self.client_socket.sendall(str(important_message).encode())
-            time.sleep(0.05)  # slightly larger delay for NAO stability
-            self.client_socket.sendall("1".encode())
-        except Exception as e:
-            self.logger.error("Sending failed: %s", str(e))
-            self.onStopped("Send failed")
-            return
+                # Wait for a message containing the detected hand state
+                important_answer = self.client_socket.recv(1024).decode()
 
-        ### 3. Receive a message
-        try:
-            num = self.client_socket.recv(1024).decode()
-            self.client_socket.sendall("0".encode())
-        except Exception as e:
-            self.logger.error("Receive failed: %s", str(e))
-            self.onStopped("Receive failed")
-            return
+                # An empty message indicates that the server has disconnected
+                if not important_answer:
+                    self.logger.info("Server disconnected.")
+                    break
 
-        # Output result to Choregraphe
-        self.onStopped(str(num))
+                # Display the received message
+                self.logger.info("Received: " + str(important_answer))
+
+                # Send the answer to the output of the Choregraphe box
+                self.onAnswer(str(important_answer))
+
+                # Go back to the beginning of Step 3
+
+        except socket.error as error:
+
+            if self.running:
+                self.logger.error("Communication error: " + str(error))
+
+        finally:
+
+            ### 4. Close the connection
+
+            self.running = False
+            self.close_socket()
+
 
     def onInput_onStop(self):
+
         self.onUnload()
-        self.onStopped("Stopped")
+        self.onStopped()
+
 
     def onUnload(self):
-        # Properly close the socket
+
+        self.running = False
+        self.close_socket()
+
+
+    def close_socket(self):
+
+        # Close the socket if one has been created
         if self.client_socket is not None:
+
+            client_socket = self.client_socket
+            self.client_socket = None
+
+            # Interrupt any pending communication
             try:
-                self.client_socket.close()
-                self.logger.info("Socket closed.")
-            except Exception:
+                client_socket.shutdown(socket.SHUT_RDWR)
+
+            except socket.error:
                 pass
-            self.client_socket = None]]>
+
+            client_socket.close()]]>
                 </content>
               </script>
               <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
               <Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Box behavior starts when a signal is received on this input." id="2" />
               <Input name="onStop" type="1" type_size="1" nature="3" inner="0" tooltip="Box behavior stops when a signal is received on this input." id="3" />
               <Output name="onStopped" type="3" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished." id="4" />
-              <Output name="handStatus" type="3" type_size="1" nature="2" inner="0" tooltip="" id="5" />
+              <Output name="onAnswer" type="3" type_size="1" nature="2" inner="0" tooltip="" id="5" />
             </Box>
-            <Box name="BothArmsShowGround_LeanBack_01" id="2" localization="8" tooltip='ID : #01F 0005&#x0A;&#x0A;===================&#x0A;&#x0A;Tags : &#x0A;- &quot;!&quot;&#x0A;- Great!&#x0A;- Impressive&#x0A;&#x0A;===================&#x0A;&#x0A;Common dialog : Yes&#x0A;&#x0A;===================&#x0A;&#x0A;Start stance : LeanBack&#x0A;End stance : LeanBack' x="282" y="105">
+            <Box name="BothArmsShowGround_LeanBack_01" id="2" localization="8" tooltip='ID : #01F 0005&#x0A;&#x0A;===================&#x0A;&#x0A;Tags : &#x0A;- &quot;!&quot;&#x0A;- Great!&#x0A;- Impressive&#x0A;&#x0A;===================&#x0A;&#x0A;Common dialog : Yes&#x0A;&#x0A;===================&#x0A;&#x0A;Start stance : LeanBack&#x0A;End stance : LeanBack' x="109" y="121">
               <bitmap>media/images/box/movement/move.png</bitmap>
               <script language="4">
                 <content>
@@ -208,7 +251,7 @@ class MyClass(GeneratedClass):
               <Resource name="Standing" type="Lock" timeout="1" />
               <Resource name="All motors" type="Lock" timeout="1" />
             </Box>
-            <Box name="Say Text" id="3" localization="8" tooltip="Say the text received on its input." x="766" y="108">
+            <Box name="Say Text (1)" id="6" localization="8" tooltip="Say the text received on its input." x="634" y="107">
               <bitmap>media/images/box/interaction/say.png</bitmap>
               <script language="4">
                 <content>
@@ -264,9 +307,9 @@ class MyClass(GeneratedClass):
               <Parameter name="Speed (%)" inherits_from_parent="1" content_type="1" value="100" default_value="100" min="50" max="200" tooltip="Changes the speed of the voice.&#x0A;&#x0A;Note: For a better effect, you can compensate this parameter with the voice&#x0A;shaping parameter. For example, if you want to increase by 20% the speed, you&#x0A;will have to decrease by 20% the voice shaping to keep a constant average&#x0A;speed." id="6" />
               <Resource name="Speech" type="Lock" timeout="0" />
             </Box>
-            <Link inputowner="2" indexofinput="2" outputowner="0" indexofoutput="2" />
             <Link inputowner="1" indexofinput="2" outputowner="2" indexofoutput="4" />
-            <Link inputowner="3" indexofinput="2" outputowner="1" indexofoutput="5" />
+            <Link inputowner="2" indexofinput="2" outputowner="0" indexofoutput="2" />
+            <Link inputowner="6" indexofinput="2" outputowner="1" indexofoutput="4" />
           </Diagram>
         </BehaviorKeyframe>
       </BehaviorLayer>
