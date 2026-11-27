@@ -7,7 +7,7 @@ You will learn how to send simple commands between the NAO and computer using so
 The robot code is in the file []() `ONROBOT_connect2server.py` (which you should put in a python box in Choreographe) and the server code is in the file `simple_socket_server.py`.
 
 
-```Mermaid
+```mermaid
 sequenceDiagram
     participant N as NAO (Client)
     participant P as PC (Server)
@@ -29,7 +29,7 @@ You will learn how to send more complex commands. The server will now perform "c
 The robot code is in the file `ONROBOT_connect2server.py` (which you should put in a python box in Choreographe) and the server code is in the file `mediapipe_socket_server.py`.
 
 
-```Mermaid
+```mermaid
 sequenceDiagram
     participant N as NAO (Client)
     participant P as PC (Server)
